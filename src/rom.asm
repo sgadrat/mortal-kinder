@@ -1,51 +1,21 @@
 ; put the program code in suitable ROM area
 .org 0x8000
 
-.ifdef VBI_INTERRUPT
-vbi:
-	push r1, [sp]
-
-	; Mark VBI handled in RAM
-	ld r1, #0
-	st r1, [vbi_wanted]
-
-	; Clear PPU IRQ status (else it won't trigger again)
-	ld r1, #0b0000_0000_0000_0001
-	st r1, [PPU_IRQ_STATUS]
-
-	pop r1, [sp]
-	reti
-.endif
-
 start:
 .include "src/logic/init.asm"
 
 call game_init
-
-.ifdef VBI_INTERRUPT
-int irq, fiq
-ld r1, #0b0000_0000_0000_0001 ; bit 2: DMA, bit 1: VDO, bit 0: blanking
-st r1, [PPU_IRQ_ENABLE]
-.endif
 
 loop:
 .scope
 	call game_tick
 
 
-.ifdef VBI_INTERRUPT
-	ld r1, #1
-	st r1, [vbi_wanted]
-	wait_loop:
-		ld r1, [vbi_wanted]
-		jnz wait_loop
-.else
 	wait_loop:
 		ld r1, [PPU_IRQ_STATUS]
 		and r1, #0b0000_0000_0000_0001 ; bit 2: DMA, bit 1: VDO, bit 0: blanking
 		jz wait_loop
 	st r1, [PPU_IRQ_STATUS] ; Clear VBI flag (note: r1's value is ensured to be "0x0001" here)
-.endif
 
 	jmp loop
 .ends
@@ -58,11 +28,7 @@ loop:
 .dw 0 ;break
 .dw 0 ;fiq
 .dw start ;reset
-.ifdef VBI_INTERRUPT
-.dw vbi ;irq 0 ; PPU vblank/vpos/dma
-.else
 .dw 0 ;irq 0 ; PPU vblank/vpos/dma
-.endif
 .dw 0 ;irq 1 ; Audio
 .dw 0 ;irq 2 ; TimerA TimerB
 .dw 0 ;irq 3 ; UART, ADC, SPI
