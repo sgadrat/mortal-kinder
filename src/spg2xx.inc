@@ -6,6 +6,24 @@
 ;; http://www.mikekohn.net/micro/naken_asm.php
 ;;
 
+;
+; Sprites constants
+;
+
+SPRITE_SIZE_8 equ 0
+SPRITE_SIZE_16 equ 1
+SPRITE_SIZE_32 equ 2
+SPRITE_SIZE_64 equ 3
+
+SPRITE_COLOR_DEPTH_2 equ 0
+SPRITE_COLOR_DEPTH_4 equ 1
+SPRITE_COLOR_DEPTH_6 equ 2
+SPRITE_COLOR_DEPTH_8 equ 3
+
+;
+; Registers and reserved memory areas
+;
+
 PPU_BG1_SCROLL_X                        equ 0x2810
 PPU_BG1_SCROLL_Y                        equ 0x2811
 PPU_BG1_ATTR                            equ 0x2812

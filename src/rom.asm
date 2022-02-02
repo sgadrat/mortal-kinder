@@ -29,3 +29,7 @@ loop:
 .align_bits 64*16
 font:
 .binfile "data/font.bin"
+
+.align_bits 64*16
+sprite_data:
+.binfile "data/sprites.built.bin"

@@ -1,3 +1,5 @@
+ANIM_FRAMERATE_LIMITER equ 32
+
 game_init:
 .scope
 	; clear tilemap
@@ -9,7 +11,7 @@ game_init:
 	cmp r3, r4
 	jb clear_tilemap_loop
 
-	 ;set address of bg 1 tilemap
+	;set address of bg 1 tilemap
 	ld r2, #tilemap
 	st r2, [PPU_BG1_TILE_ADDR]
 
@@ -85,8 +87,68 @@ game_init:
 	ld r2, #'!'
 	st r2, [r3++]
 
+	; Players
+	goto init_player_a
+
 	retf
 .ends
 
-game_tick:
+init_player_a:
+	ld r1, #ANIM_FRAMERATE_LIMITER
+	st r1, [player_a_anim_counter]
+	ld r1, #1
+	st r1, [player_a_anim_current_tile]
+	st r1, [player_a_anim_first_tile]
+	ld r1, #3
+	st r1, [player_a_anim_last_tile]
 	retf
+
+game_tick:
+.scope
+	pos_x equ 0
+	pos_y equ 0
+	pos_z equ 1
+
+	;Test read controls
+	ld r1, [GPIO_A_DATA]
+	ld r1, [GPIO_A_DATA]
+	ld r1, [GPIO_A_DATA]
+
+	; Tick animation
+	ld r1, [player_a_anim_counter]
+	sub r1, #1
+	st r1, [player_a_anim_counter]
+	cmp r1, #0
+	jnz ok
+		; Reset counter
+		ld r1, #ANIM_FRAMERATE_LIMITER
+		st r1, [player_a_anim_counter]
+
+		; Change anim frame
+		ld r1, [player_a_anim_current_tile]
+		add r1, #1
+		st r1, [player_a_anim_current_tile]
+		cmp r1, [player_a_anim_last_tile]
+		jbe last_tile_set
+			; We gone past the end, loop
+			ld r1, [player_a_anim_first_tile]
+			st r1, [player_a_anim_current_tile]
+		last_tile_set:
+	ok:
+
+
+	; Place sprite
+	ld r1, [player_a_anim_current_tile]
+	st r1, [PPU_SPRITE_TILE(0)]
+
+	ld r1, #pos_x
+	;add r1, [player_a_anim_counter]
+	st r1, [PPU_SPRITE_X(0)]
+
+	ld r1, #pos_y
+	st r1, [PPU_SPRITE_Y(0)]
+
+	ld r1, #(pos_z << 12) | (SPRITE_SIZE_32 << 6) | (SPRITE_SIZE_32 << 4) | SPRITE_COLOR_DEPTH_8
+	st r1, [PPU_SPRITE_ATTR(0)]
+	retf
+.ends

@@ -40,4 +40,8 @@ st r1, [PPU_BG2_CTRL] ; disable bg 2 since bit 3 = 0
 
 st r1, [PPU_FADE_CTRL] ; clear fade control
 
-st r1, [PPU_SPRITE_CTRL] ; disable sprites
+ld r2, #1
+st r2, [PPU_SPRITE_CTRL] ; enable sprites
+
+ld r2, #sprite_data/64
+st r2, [PPU_SPRITE_SEGMENT_ADDR]
