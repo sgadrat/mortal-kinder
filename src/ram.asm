@@ -5,6 +5,11 @@ tilemap:
 .resw (512/8)*(256/8) ; 8x8 sized tiles = 64*32 sized tilemap
 tilemap_end:
 
+; System
+.ifdef VBI_INTERRUPT
+vbi_wanted: .resw 1 ; If 0, NMI handler will skip its processing, reset to 0 by VBI handler
+.endif
+
 ; Player A
 player_a_anim_counter: .resw 1
 player_a_anim_current_tile: .resw 1

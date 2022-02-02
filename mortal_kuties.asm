@@ -1,5 +1,6 @@
 .include "src/spg2xx.inc"
-.define color(r,g,b) ((r << 10) | (g << 5) | (b << 0))
+
+;.define VBI_INTERRUPT
 
 .unsp
 .low_address 0

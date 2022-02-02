@@ -7,6 +7,12 @@
 ;;
 
 ;
+; Data format
+;
+
+.define color(r, g, b) ((r << 10) | (g << 5) | (b << 0))
+
+;
 ; Sprites constants
 ;
 
