@@ -11,6 +11,7 @@
 ;
 
 .define color(r, g, b) ((r << 10) | (g << 5) | (b << 0))
+.define color_transparent 0b1000_0000_0000_0000
 
 ;
 ; Sprites constants
