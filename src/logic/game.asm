@@ -126,6 +126,7 @@ game_init:
 .ends
 
 init_player_a:
+	; Animation
 	ld r1, #ANIM_FRAMERATE_LIMITER
 	st r1, [player_a_anim_counter]
 	ld r1, #1
@@ -133,18 +134,28 @@ init_player_a:
 	st r1, [player_a_anim_first_tile]
 	ld r1, #2
 	st r1, [player_a_anim_last_tile]
+
+	; Sate
+	ld r1, #-75
+	st r1, [player_a_pos_x]
+
 	retf
 
 game_tick:
 .scope
-	pos_x equ -75
 	pos_y equ -25
 	pos_z equ 1
 
 	;Test read controls
-	ld r1, [GPIO_A_DATA]
-	ld r1, [GPIO_A_DATA]
-	ld r1, [GPIO_A_DATA]
+	;FIXME it works like that with the Batman board, but I don't even know what it is. V.Smile seems to have way more complex inputs.
+	;ld r1, [GPIO_A_DATA]
+	;ld r2, #INPUT_RIGHT
+	;and r1, r2
+	;jne ok_right
+	;	ld r2, [player_a_pos_x]
+	;	add r2, #1
+	;	st r2, [player_a_pos_x]
+	;ok_right:
 
 	; Tick animation
 	ld r1, [player_a_anim_counter]
@@ -173,7 +184,7 @@ game_tick:
 	ld r1, [player_a_anim_current_tile]
 	st r1, [PPU_SPRITE_TILE(0)]
 
-	ld r1, #pos_x
+	ld r1, [player_a_pos_x]
 	st r1, [PPU_SPRITE_X(0)]
 
 	ld r1, #pos_y
