@@ -2,6 +2,9 @@ int off ; turn off interrupts as soon as possible
 
 ld r1, #0
 
+; Positione stack at the end of RAM
+ld sp, #0x27ff
+
 ; initialize system ctrl
 st r1, [SYSTEM_CTRL]
 

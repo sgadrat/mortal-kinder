@@ -120,7 +120,7 @@ game_init:
 	st r2, [r3++]
 
 	; Players
-	goto init_player_a
+	call init_player_a
 
 	retf
 .ends
