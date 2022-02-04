@@ -3,8 +3,8 @@
 import sys
 from PIL import Image
 
-sprite_w = 32
-sprite_h = 32
+sprite_w = 64
+sprite_h = 64
 depth = 4 # hardcoded everywhere, TODO make things adaptable so there is just to change this constant
 color_offset = 2
 

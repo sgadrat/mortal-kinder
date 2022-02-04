@@ -137,8 +137,8 @@ init_player_a:
 
 game_tick:
 .scope
-	pos_x equ 0
-	pos_y equ 0
+	pos_x equ -75
+	pos_y equ -25
 	pos_z equ 1
 
 	;Test read controls
@@ -174,13 +174,12 @@ game_tick:
 	st r1, [PPU_SPRITE_TILE(0)]
 
 	ld r1, #pos_x
-	;add r1, [player_a_anim_counter]
 	st r1, [PPU_SPRITE_X(0)]
 
 	ld r1, #pos_y
 	st r1, [PPU_SPRITE_Y(0)]
 
-	ld r1, #(pos_z << 12) | (SPRITE_SIZE_32 << 6) | (SPRITE_SIZE_32 << 4) | SPRITE_COLOR_DEPTH_4
+	ld r1, #(pos_z << 12) | (SPRITE_SIZE_64 << 6) | (SPRITE_SIZE_64 << 4) | SPRITE_COLOR_DEPTH_4
 	st r1, [PPU_SPRITE_ATTR(0)]
 	retf
 .ends
