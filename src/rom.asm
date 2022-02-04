@@ -1,5 +1,5 @@
 ; put the program code in suitable ROM area
-.org 0x8000
+.org 0xc000
 
 start:
 .include "src/logic/init.asm"
