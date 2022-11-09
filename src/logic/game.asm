@@ -11,7 +11,7 @@ game_init:
 	cmp r3, r4
 	jb clear_tilemap_loop
 
-	;set address of bg 1 tilemap
+	; set address of bg 1 tilemap
 	ld r2, #tilemap
 	st r2, [PPU_BG1_TILE_ADDR]
 
@@ -135,7 +135,7 @@ init_player_a:
 	ld r1, #2
 	st r1, [player_a_anim_last_tile]
 
-	; Sate
+	; State
 	ld r1, #-75
 	st r1, [player_a_pos_x]
 
@@ -146,16 +146,15 @@ game_tick:
 	pos_y equ -25
 	pos_z equ 1
 
-	;Test read controls
-	;FIXME it works like that with the Batman board, but I don't even know what it is. V.Smile seems to have way more complex inputs.
-	;ld r1, [GPIO_A_DATA]
-	;ld r2, #INPUT_RIGHT
-	;and r1, r2
-	;jne ok_right
-	;	ld r2, [player_a_pos_x]
-	;	add r2, #1
-	;	st r2, [player_a_pos_x]
-	;ok_right:
+	; Apply inputs
+	ld r1, [controller_a_state]
+	ld r1, #INPUT_RIGHT
+	and r1, r2
+	jz ok_right
+		ld r2, [player_a_pos_x]
+		add r2, #1
+		st r2, [player_a_pos_x]
+	ok_right:
 
 	; Tick animation
 	ld r1, [player_a_anim_counter]

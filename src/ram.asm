@@ -6,6 +6,13 @@ tilemap:
 tilemap_end:
 
 ;
+; Controllers
+;
+
+controller_a_state: .resw 1
+controller_b_state: .resw 1
+
+;
 ; Player A
 ;
 

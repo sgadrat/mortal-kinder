@@ -4,12 +4,13 @@
 start:
 .include "src/logic/init.asm"
 
+call controllers_init
 call game_init
 
 loop:
 .scope
+	call controllers_read_joystick_a
 	call game_tick
-
 
 	wait_loop:
 		ld r1, [PPU_IRQ_STATUS]
@@ -20,6 +21,7 @@ loop:
 	jmp loop
 .ends
 
+.include "src/logic/controllers.asm"
 .include "src/logic/game.asm"
 
 ; configure interrupt vector
