@@ -148,7 +148,7 @@ game_tick:
 
 	; Apply inputs
 	ld r1, [controller_a_state]
-	ld r1, #INPUT_RIGHT
+	ld r2, #INPUT_RIGHT
 	and r1, r2
 	jz ok_right
 		ld r2, [player_a_pos_x]
