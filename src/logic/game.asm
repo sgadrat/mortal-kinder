@@ -1,4 +1,4 @@
-ANIM_FRAMERATE_LIMITER equ 32
+ANIM_FRAMERATE_LIMITER equ 16
 
 game_init:
 .scope
@@ -22,6 +22,8 @@ game_init:
 	st r2, [PPU_BG1_SEGMENT_ADDR]
 
 	; set color palette
+	;  0 and 1 are used by background
+	;  16 to 31 are used by player 1 sprites
 	ld r2, #color(29, 26, 15)
 	st r2, [PPU_COLOR(0)]
 
@@ -29,37 +31,52 @@ game_init:
 	st r2, [PPU_COLOR(1)]
 
 	ld r2, #color(31, 31, 31) | color_transparent
-	st r2, [PPU_COLOR(2)]
+	st r2, [PPU_COLOR(16+0)]
 
 	ld r2, #color(0, 0, 0)
-	st r2, [PPU_COLOR(3)]
+	st r2, [PPU_COLOR(16+1)]
 
 	ld r2, #color(9, 4, 0)
-	st r2, [PPU_COLOR(4)]
+	st r2, [PPU_COLOR(16+2)]
 
 	ld r2, #color(1, 8, 0)
-	st r2, [PPU_COLOR(5)]
+	st r2, [PPU_COLOR(16+3)]
 
 	ld r2, #color(0x1f, 1, 1)
-	st r2, [PPU_COLOR(6)]
+	st r2, [PPU_COLOR(16+4)]
 
 	ld r2, #color(0x19, 0xc, 4)
-	st r2, [PPU_COLOR(7)]
+	st r2, [PPU_COLOR(16+5)]
 
 	ld r2, #color(0x19, 0xb, 0x13)
-	st r2, [PPU_COLOR(8)]
+	st r2, [PPU_COLOR(16+6)]
 
 	ld r2, #color(0x12, 0x11, 0x15)
-	st r2, [PPU_COLOR(9)]
+	st r2, [PPU_COLOR(16+7)]
 
 	ld r2, #color(0x1b, 0x13, 0xa)
-	st r2, [PPU_COLOR(10)]
+	st r2, [PPU_COLOR(16+8)]
 
 	ld r2, #color(0x1f, 0x1f, 0)
-	st r2, [PPU_COLOR(11)]
+	st r2, [PPU_COLOR(16+9)]
 
 	ld r2, #color(0x1f, 0x1f, 0x1f)
-	st r2, [PPU_COLOR(12)]
+	st r2, [PPU_COLOR(16+10)]
+
+	ld r2, #color(0x1b, 0x19, 0x16)
+	st r2, [PPU_COLOR(16+11)]
+
+	ld r2, #color(0x12, 0x1b, 0x1e)
+	st r2, [PPU_COLOR(16+12)]
+
+	ld r2, #color(0x1e, 0x1b, 0x14)
+	st r2, [PPU_COLOR(16+13)]
+
+	ld r2, #color(0x1c, 0x1c, 0x19)
+	st r2, [PPU_COLOR(16+14)]
+
+	ld r2, #color(0x1e, 0x1f, 0x1f)
+	st r2, [PPU_COLOR(16+15)]
 
 	; current palette also uses color 2 and 3
 	; though our graphics only use color 0-1
@@ -145,6 +162,7 @@ game_tick:
 .scope
 	pos_y equ -25
 	pos_z equ 1
+	sprites_palette equ 1
 
 	; Apply inputs
 	ld r1, [controller_a_state]
@@ -189,7 +207,8 @@ game_tick:
 	ld r1, #pos_y
 	st r1, [PPU_SPRITE_Y(0)]
 
-	ld r1, #(pos_z << 12) | (SPRITE_SIZE_64 << 6) | (SPRITE_SIZE_64 << 4) | SPRITE_COLOR_DEPTH_4
+	ld r1, #(pos_z << 12) | (sprites_palette << 8) | (SPRITE_SIZE_64 << 6) | (SPRITE_SIZE_64 << 4) | SPRITE_COLOR_DEPTH_4
 	st r1, [PPU_SPRITE_ATTR(0)]
+
 	retf
 .ends

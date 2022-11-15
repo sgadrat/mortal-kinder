@@ -46,5 +46,5 @@ st r1, [PPU_FADE_CTRL] ; clear fade control
 ld r2, #1
 st r2, [PPU_SPRITE_CTRL] ; enable sprites
 
-ld r2, #sprite_data/64
+ld r2, #(sprite_data-(64*64/4))/64 ; "sprite_data - one sprite" because sprite 0 is unusable, "/64" forced alignment, "/4" four pixels per word
 st r2, [PPU_SPRITE_SEGMENT_ADDR]

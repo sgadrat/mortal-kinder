@@ -6,15 +6,6 @@ from PIL import Image
 sprite_w = 64
 sprite_h = 64
 depth = 4 # hardcoded everywhere, TODO make things adaptable so there is just to change this constant
-color_offset = 2
-
-# Serialize a dummy sprite, unreachable
-#  Yeah that's dumb, should be handled on the asm file that include the sprites data
-def dummy_sprite(color):
-	global sprite_w, sprite_h
-	sys.stdout.buffer.write(color*(sprite_w*sprite_h//2)) #2 for depth=4
-
-dummy_sprite(b'\1')
 
 # Read spritesheet
 img = Image.open(sys.argv[1])
@@ -41,8 +32,7 @@ for sprite_index in range(n_sprites):
 	for y in range(sprite_h):
 		for x in range(sprite_w):
 			pixel = img.getpixel((sprite_pos_x+x, sprite_pos_y+y))
-			pixel += color_offset
-			assert pixel >= 0 and pixel < 16, "invalid pixel in 4 depth palette {}".format(pixel)
+			assert pixel >= 0 and pixel < 2**depth, "invalid pixel in {} depth palette: position={}x{} color={}".format(depth, sprite_pos_x+x, sprite_pos_y+y, pixel)
 			if pixel_in_byte == 0:
 				current_byte = pixel * 16
 				pixel_in_byte += 1
