@@ -11,8 +11,25 @@ controllers_init:
 	; Copied form Pulkomandy's example, it says it puts IOC8 (CTS A) down to enable controller A
 	;  1. Other part of the doc says that controllers are enabled when CTS is high (not down)
 	;  2. IOC8 is effectively set high
-	;  3. Mysteriously two bits are set down (IOC7 and IOC11)
-	; Ideally both controllers should be disabled until the set their RTS bit, and enabled just the time needed to read their input
+	; Ideally both controllers should be disabled until they set their RTS bit, and enabled just the time needed to read their input
+	;  Better code sample -> https://github.com/sp1187/vsmile-ctrldemo
+	;
+	; fedc ba98 7654 3210
+	; CTRB .Aba PE?l LLLL
+	;  LLLL - language
+	;     l - show logo animation at boot
+	;     ? - unknown
+	;     E - audio enable
+	;     P - power control
+	;     a - controller A Clear To Send
+	;     b - controller B Clear To Send
+	;     A - controller A Request To Send
+	;     B - controller B Request To Send
+	;     R - UART Rx
+	;     T - UART Tx
+	;     C - Controller power (unsure about that)
+	;         fedcba9876543210
+	;         CTRB.AbaPE?lLLLL
 	ld r1, #0b1111011101111111
 	st r1, [GPIO_C_DATA]
 
