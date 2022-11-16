@@ -1,3 +1,21 @@
+; One word representation of controller state
+INPUT_UP     equ 0x8000
+INPUT_DOWN   equ 0x4000
+INPUT_LEFT   equ 0x2000
+INPUT_RIGHT  equ 0x1000
+INPUT_RED    equ 0x0800
+INPUT_YELLOW equ 0x0400
+INPUT_BLUE   equ 0x0200
+INPUT_GREEN  equ 0x0100
+INPUT_BUTTON equ 0x000f
+
+; INPUT_BUTTON masks the currently pressed button
+;  0 - all released
+;  1 - OK
+;  2 - Exit
+;  3 - Help
+;  4 - Learning zone
+
 ; Initialize IO to be able to read controllers state
 controllers_init:
 .scope
@@ -71,38 +89,114 @@ controllers_read_joystick_a:
 	; Check if there is a byte in the RX buffer
 	ld r1, [UART_STATUS]
 	and r1, #0b00000001
-	jz end
+	jnz proceed
+		goto end
+	proceed:
 
 		; Read message from the controller
 		ld r1, [UART_RXBUF]
 
-		;TODO parse joystic position/color buttons and OK button (and ideally others)
-		ld r2, #0x91 ; 0x91 = green button
-		cmp r2, r1
-		jz right_pressed
-		ld r2, #0x90 ; 0x90 = color button released
-		cmp r2, r1
-		jz right_released
+		; Parse joystic input
+		;  Each input is a byte with a "family" nimble and a "value" nimble
+		ld r2, #0xf0 ; Get "family" nimble
+		and r2, r1
+
+		cmp r2, #0x90 ; Check if it is a color input
+		jz color_pressed
+		cmp r2, #0xc0 ; Check horizontal axis
+		jz horizontal_changed
+		cmp r2, #0x80 ; Check vertical axis
+		jz vertical_changed
+		cmp r2, #0xa0 ; Check buttons
+		jz buttons_changed
 
 			unhandled_input:
 				retf
 
-			right_pressed:
-				ld r1, [controller_a_state]
-				ld r2, #INPUT_RIGHT
-				or r1, r2
-				st r1, [controller_a_state]
+			color_pressed:
+				; Color, the value nimble contains a bitfield of pressed colors in order red,yellow,blue,green
 
+				; r3,r4 = colors bitfield on the 3rd nimble (as in our one word state representation)
+				and r1, #0x000f
+				ld r2, #0x0100
+				mul.us r1, r2
+
+				; Replace colors bitfield in current controller state
+				;   state = (state & 0xf0ff) | r3
+				ld r2, [controller_a_state]
+				and r2, #0xf0ff
+				or r2, r3
+				st r2, [controller_a_state]
 				retf
 
-			right_released:
-				ld r1, [controller_a_state]
-				ld r2, #0xefff ; NOT INPUT_RIGHT
-				and r1, r2
-				st r1, [controller_a_state]
+			buttons_changed:
+				; r1 = button pressed in the lowest nimble
+				and r1, #0x000f
 
+				; Replace button pressed in current controller state
+				ld r2, [controller_a_state]
+				and r2, #0xfff0
+				or r2, r1
+				st r2, [controller_a_state]
 				retf
 
+			horizontal_changed:
+				; Horizontal value - 0 means neutral, B to F means left, 3 to 7 means right
+
+				and r1, #0x000f
+				jz horizontal_neutral
+				and r1, #0x0008
+				jz right
+
+					left:
+						ld r1, [controller_a_state]
+						or r1, #INPUT_LEFT
+						and r1, #~INPUT_RIGHT
+						st r1, [controller_a_state]
+						retf
+
+					right:
+						ld r1, [controller_a_state]
+						and r1, #~INPUT_LEFT
+						or r1, #INPUT_RIGHT
+						st r1, [controller_a_state]
+						retf
+
+					horizontal_neutral:
+						ld r1, [controller_a_state]
+						and r1, #~INPUT_LEFT
+						and r1, #~INPUT_RIGHT
+						st r1, [controller_a_state]
+						retf
+
+			vertical_changed:
+				; Vertical value - 0 means neutral, B to F means down, 3 to 7 means top
+
+				and r1, #0x000f
+				jz vertical_neutral
+				and r1, #0x0008
+				jz up
+
+					down:
+						ld r1, [controller_a_state]
+						or r1, #INPUT_DOWN
+						and r1, #(~INPUT_UP)&0xffff
+						st r1, [controller_a_state]
+						retf
+
+					up:
+						ld r1, [controller_a_state]
+						and r1, #~INPUT_DOWN
+						or r1, #INPUT_UP
+						st r1, [controller_a_state]
+						retf
+
+					vertical_neutral:
+						ld r1, [controller_a_state]
+						and r1, #~INPUT_DOWN
+						and r1, #(~INPUT_UP)&0xffff
+						st r1, [controller_a_state]
+						retf
 	end:
 	retf
 .ends

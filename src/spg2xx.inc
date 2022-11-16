@@ -28,15 +28,6 @@ SPRITE_COLOR_DEPTH_6 equ 2
 SPRITE_COLOR_DEPTH_8 equ 3
 
 ;
-; Controler constants (may not be directly related to spg2xx
-;
-
-INPUT_UP    equ 0x8000
-INPUT_DOWN  equ 0x4000
-INPUT_LEFT  equ 0x2000
-INPUT_RIGHT equ 0x1000
-
-;
 ; Registers and reserved memory areas
 ;
 

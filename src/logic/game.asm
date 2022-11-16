@@ -5,9 +5,9 @@ game_init:
 	ld r3, #tilemap
 	ld r4, #tilemap_end
 	clear_tilemap_loop:
-	st r2, [r3++]
-	cmp r3, r4
-	jb clear_tilemap_loop
+		st r2, [r3++]
+		cmp r3, r4
+		jb clear_tilemap_loop
 
 	; set address of bg 1 tilemap
 	ld r2, #tilemap
@@ -165,13 +165,20 @@ game_tick:
 
 	; Apply inputs
 	ld r1, [controller_a_state]
-	ld r2, #INPUT_RIGHT
-	and r1, r2
+	and r1, #INPUT_RIGHT
 	jz ok_right
 		ld r2, [player_a_pos_x]
 		add r2, #1
 		st r2, [player_a_pos_x]
 	ok_right:
+
+	ld r1, [controller_a_state]
+	and r1, #INPUT_LEFT
+	jz ok_left
+		ld r2, [player_a_pos_x]
+		sub r2, #1
+		st r2, [player_a_pos_x]
+	ok_left:
 
 	; Tick animation
 	ld bp, #player_a_anim
