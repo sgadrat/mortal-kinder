@@ -21,6 +21,7 @@ loop:
 	jmp loop
 .ends
 
+.include "src/logic/animations.asm"
 .include "src/logic/controllers.asm"
 .include "src/logic/game.asm"
 

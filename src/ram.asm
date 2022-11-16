@@ -16,9 +16,6 @@ controller_b_state: .resw 1
 ; Player A
 ;
 
-player_a_anim_counter: .resw 1
-player_a_anim_current_tile: .resw 1
-player_a_anim_first_tile: .resw 1
-player_a_anim_last_tile: .resw 1
+player_a_anim: .resw 5 ;ANIMATION_STATE_SIZE
 
 player_a_pos_x: .resw 1

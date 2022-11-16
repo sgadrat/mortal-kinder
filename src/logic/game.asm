@@ -1,5 +1,3 @@
-ANIM_FRAMERATE_LIMITER equ 16
-
 game_init:
 .scope
 	; clear tilemap
@@ -143,14 +141,11 @@ game_init:
 .ends
 
 init_player_a:
+.scope
 	; Animation
-	ld r1, #ANIM_FRAMERATE_LIMITER
-	st r1, [player_a_anim_counter]
-	ld r1, #1
-	st r1, [player_a_anim_current_tile]
-	st r1, [player_a_anim_first_tile]
-	ld r1, #2
-	st r1, [player_a_anim_last_tile]
+	ld bp, #player_a_anim
+	ld r1, #anim_info
+	call animation_init
 
 	; State
 	ld r1, #-75
@@ -158,11 +153,15 @@ init_player_a:
 
 	retf
 
+	anim_info:
+	.dw 16 ; nb frames skipped between steps
+	.dw 1 ; animation's first tile
+	.dw 2 ; animation's last tile
+.ends
+
 game_tick:
 .scope
 	pos_y equ -25
-	pos_z equ 1
-	sprites_palette equ 1
 
 	; Apply inputs
 	ld r1, [controller_a_state]
@@ -175,40 +174,14 @@ game_tick:
 	ok_right:
 
 	; Tick animation
-	ld r1, [player_a_anim_counter]
-	sub r1, #1
-	st r1, [player_a_anim_counter]
-	cmp r1, #0
-	jnz ok
-		; Reset counter
-		ld r1, #ANIM_FRAMERATE_LIMITER
-		st r1, [player_a_anim_counter]
-
-		; Change anim frame
-		ld r1, [player_a_anim_current_tile]
-		add r1, #1
-		st r1, [player_a_anim_current_tile]
-		cmp r1, [player_a_anim_last_tile]
-		jbe last_tile_set
-			; We gone past the end, loop
-			ld r1, [player_a_anim_first_tile]
-			st r1, [player_a_anim_current_tile]
-		last_tile_set:
-	ok:
-
+	ld bp, #player_a_anim
+	call animation_tick
 
 	; Place sprite
-	ld r1, [player_a_anim_current_tile]
-	st r1, [PPU_SPRITE_TILE(0)]
-
+	ld bp, #player_a_anim
 	ld r1, [player_a_pos_x]
-	st r1, [PPU_SPRITE_X(0)]
-
-	ld r1, #pos_y
-	st r1, [PPU_SPRITE_Y(0)]
-
-	ld r1, #(pos_z << 12) | (sprites_palette << 8) | (SPRITE_SIZE_64 << 6) | (SPRITE_SIZE_64 << 4) | SPRITE_COLOR_DEPTH_4
-	st r1, [PPU_SPRITE_ATTR(0)]
+	ld r2, #pos_y
+	call animation_display
 
 	retf
 .ends
