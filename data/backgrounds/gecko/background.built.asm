@@ -1,6 +1,7 @@
 ; The graphics data needs to be 64-word aligned
 .align_bits 64*16
 gecko_background_tiles:
+.resw (8*8*4)/16 ; tile 0 unusable, not in tileset files
 .binfile "data/backgrounds/gecko/background.built.tileset"
 
 gecko_background_tilemap:
