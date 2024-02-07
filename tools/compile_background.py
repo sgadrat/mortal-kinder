@@ -47,7 +47,7 @@ built_palette_filename = os.path.abspath(f'{dst_dir}/{map_name}.built.palette')
 built_tilemap_filename = os.path.abspath(f'{dst_dir}/{map_name}.built.tilemap')
 built_asm_filename = os.path.abspath(f'{dst_dir}/{map_name}.built.asm')
 
-project_root = os.path.abspath(os.path.dirname(__file__) + '..')
+project_root = os.path.abspath(os.path.dirname(__file__) + '/..')
 relative_built_tileset_filename = os.path.relpath(built_tileset_filename, project_root)
 relative_built_palette_filename = os.path.relpath(built_palette_filename, project_root)
 relative_built_tilemap_filename = os.path.relpath(built_tilemap_filename, project_root)
