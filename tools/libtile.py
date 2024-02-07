@@ -39,7 +39,6 @@ def extract_tile(img, position, size, depth):
 	current_pixel = 0
 	for y in range(size[1]):
 		for x in range(size[0]):
-			print(f"   getpixel({position[0]+x}, {position[1]+y})")
 			pixel = img.getpixel((position[0]+x, position[1]+y))
 			assert pixel >= 0 and pixel < 2**depth, "invalid pixel in {} depth palette: position={}x{} color={}".format(depth, position[0]+x, position[1]+y, pixel)
 			tile.set_pixel((x, y), pixel)

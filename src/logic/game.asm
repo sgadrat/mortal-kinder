@@ -13,23 +13,9 @@ game_init:
 	ld r2, #tilemap
 	st r2, [PPU_BG1_TILE_ADDR]
 
-	; set address of tile graphics data
-	; the register only stores the 16 most significant bits of a 22-bit address
-	; lowest 6 bits are expected to be zero, graphics therefore need to be 64-word aligned.
-	;FIXME should be located with the tilemap copy code
-	;FIXME should use this info from gecko_background_info
-	ld r2, #(gecko_background_tiles >> 6)
-	st r2, [PPU_BG1_SEGMENT_ADDR]
-
 	; set color palette
 	;  0 and 1 are used by background ;FIXME should be located with tilemap copy code
 	;  16 to 31 are used by player 1 sprites
-	ld r2, #color(29, 26, 15)
-	st r2, [PPU_COLOR(0)]
-
-	ld r2, #color(0, 8, 16)
-	st r2, [PPU_COLOR(1)]
-
 	ld r2, #color(31, 31, 31) | color_transparent
 	st r2, [PPU_COLOR(16+0)]
 
@@ -78,31 +64,30 @@ game_init:
 	ld r2, #color(0x1e, 0x1f, 0x1f)
 	st r2, [PPU_COLOR(16+15)]
 
-	; current palette also uses color 2 and 3
-	; though our graphics only use color 0-1
+	; Load background
+	call load_background_gecko
 
-	; write string into tilemap
+	; Players
+	call init_player_a
 
-	; the position of a specific tile can be calculated by:
-	; tilemap start address + (row * number of columns) + column
-	; where row and column values are 0-indexed
-	; number of columns is 512 / horizontal size
-	; number of rows is 256 / vertical size
+	retf
+.ends
 
-	; start string in row 2, column 3
-	ld r3, #(tilemap + 64*2 + 3)
+load_background_gecko:
+.scope
+	; DS = background's bank
+	and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+	or sr, #(gecko_background_info >> 6) & 0b111111_0_0_0_0_000000
 
-	; the start address of the tile to draw is determined by
-	; graphics start address + tile size in words * tile ID
-	; where tile size in words is calculated by:
-	; (vertical size * horizontal size * color depth in bits) / 16
+	; Set address of tile graphics data
+	;  The register only stores the 16 most significant bits of a 22-bit address
+	;  lowest 6 bits are expected to be zero, graphics therefore need to be 64-word aligned.
+	ld r1, #(gecko_background_info & 0xffff) + 0
+	ld r2, D:[r1]
+	st r2, [PPU_BG1_SEGMENT_ADDR]
 
 	; Copy tilemap from ROM to RAM
 	;{
-		; DS = background's bank
-		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
-		or sr, #(gecko_background_info >> 6) & 0b111111_0_0_0_0_000000
-
 		; R2 = destination address of the copied tilemap (zero-page ensured, it is RAM)
 		ld r2, #tilemap
 
@@ -122,14 +107,31 @@ game_init:
 			jnz copy_tilemap_loop
 	;}
 
+	; Set color palette
+	;{
+		; R2 = destination address
+		ld r2, #PPU_COLOR(0)
+
+		; R3 = tilemap address (DS bank)
+		ld r1, #(gecko_background_info & 0xffff) + 4
+		ld r3, D:[r1]
+
+		; R4 = words count
+		ld r1, #(gecko_background_info & 0xffff) + 5
+		ld r4, D:[r1]
+
+		; Copy loop
+		copy_palette_loop:
+			ld r1, D:[r3++]
+			st r1, [r2++]
+			sub r4, #1
+			jnz copy_palette_loop
+	;}
+
 	; Set attribute of bg 1
-	;ld r2, #0b00_00_0000_00_00_0_0_01
 	ld r1, #(gecko_background_info & 0xffff) + 3
 	ld r2, D:[r1]
 	st r2, [PPU_BG1_ATTR]
-
-	; Players
-	call init_player_a
 
 	retf
 .ends
