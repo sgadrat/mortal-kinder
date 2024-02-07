@@ -26,6 +26,7 @@ for sprite_index in range(n_sprites):
 	sprite_pos_x = sprite_index * sprite_w
 
 	# Serialize sprite
+	#TODO reimplement with libtile, would allow to handle any depth easily
 	sprite_blob = b''
 	pixel_in_byte = 0
 	current_pixel = 0

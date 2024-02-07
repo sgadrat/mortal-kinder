@@ -2,7 +2,11 @@
 ; put the tilemap somewhere other than 0 (unununium crashes with tilemap at 0)
 .org 0x0001
 tilemap:
-.resw (512/8)*(256/8) ; 8x8 sized tiles = 64*32 sized tilemap
+; Memory usage of the tilemap: one word per tile
+;  512x256 pixels: can't be changed
+;  8x8 pixels per tile: configured in src/logic/init.asm (register PPU_BG1_CTRL)
+;  this is a 64x32 tiles tilemap
+.resw (512/8)*(256/8)
 tilemap_end:
 
 ;
