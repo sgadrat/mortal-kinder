@@ -16,11 +16,13 @@ game_init:
 	; set address of tile graphics data
 	; the register only stores the 16 most significant bits of a 22-bit address
 	; lowest 6 bits are expected to be zero, graphics therefore need to be 64-word aligned.
-	ld r2, #(font >> 6)
+	;FIXME should be located with the tilemap copy code
+	;FIXME should use this info from gecko_background_info
+	ld r2, #(gecko_background_tiles >> 6)
 	st r2, [PPU_BG1_SEGMENT_ADDR]
 
 	; set color palette
-	;  0 and 1 are used by background
+	;  0 and 1 are used by background ;FIXME should be located with tilemap copy code
 	;  16 to 31 are used by player 1 sprites
 	ld r2, #color(29, 26, 15)
 	st r2, [PPU_COLOR(0)]
@@ -90,49 +92,41 @@ game_init:
 	; start string in row 2, column 3
 	ld r3, #(tilemap + 64*2 + 3)
 
-	; the start address of the sprite to draw is determined by
-	; graphics start address + sprite size in words * tile ID
-	; where sprite size in words is calculated by:
+	; the start address of the tile to draw is determined by
+	; graphics start address + tile size in words * tile ID
+	; where tile size in words is calculated by:
 	; (vertical size * horizontal size * color depth in bits) / 16
 
-	ld r2, #'H' ; write some characters
-	st r2, [r3++]
+	; Copy tilemap from ROM to RAM
+	;{
+		; DS = background's bank
+		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+		or sr, #(gecko_background_info >> 6) & 0b111111_0_0_0_0_000000
 
-	ld r2, #'e'
-	st r2, [r3++]
+		; R2 = destination address of the copied tilemap (zero-page ensured, it is RAM)
+		ld r2, #tilemap
 
-	ld r2, #'y'
-	st r2, [r3++]
+		; R3 = tilemap address (DS bank)
+		ld r1, #(gecko_background_info & 0xffff) + 1
+		ld r3, D:[r1]
 
-	ld r2, #'!'
-	st r2, [r3++]
+		; R4 = tile count
+		ld r1, #(gecko_background_info & 0xffff) + 2
+		ld r4, D:[r1]
 
-	ld r2, #' '
-	st r2, [r3++]
+		; Copy loop
+		copy_tilemap_loop:
+			ld r1, D:[r3++]
+			st r1, [r2++]
+			sub r4, #1
+			jnz copy_tilemap_loop
+	;}
 
-	ld r2, #'V'
-	st r2, [r3++]
-
-	ld r2, #'.'
-	st r2, [r3++]
-
-	ld r2, #'S'
-	st r2, [r3++]
-
-	ld r2, #'m'
-	st r2, [r3++]
-
-	ld r2, #'i'
-	st r2, [r3++]
-
-	ld r2, #'l'
-	st r2, [r3++]
-
-	ld r2, #'e'
-	st r2, [r3++]
-
-	ld r2, #'!'
-	st r2, [r3++]
+	; Set attribute of bg 1
+	;ld r2, #0b00_00_0000_00_00_0_0_01
+	ld r1, #(gecko_background_info & 0xffff) + 3
+	ld r2, D:[r1]
+	st r2, [PPU_BG1_ATTR]
 
 	; Players
 	call init_player_a

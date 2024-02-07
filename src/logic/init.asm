@@ -26,6 +26,7 @@ st r1, [PPU_BG1_SCROLL_Y] ; scroll Y offset of bg 1 = 0
 ; bit 12-13: depth (0 = bottom layer)
 st r1, [PPU_BG1_ATTR] ; set attribute of bg 1
 
+;FIXME should disable and let game_init routine set it as needed
 ; set control config for bg 1
 ; bit 0: bitmap mode (0 = disable)
 ; bit 1: attribute map mode or register mode (1 = register mode)

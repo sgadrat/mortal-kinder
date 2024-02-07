@@ -74,6 +74,7 @@ for source_tile_index in range(n_tiles):
 		index_map[source_tile_index] = stored_tile_index
 	else:
 		# Tile is new, add it to tiles list
+		index_map[source_tile_index] = len(tiles)
 		tiles.append(new_tile)
 
 # Output serialized tile

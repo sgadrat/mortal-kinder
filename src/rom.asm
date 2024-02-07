@@ -42,9 +42,8 @@ loop:
 
 ; the graphics data needs to be 64-word aligned
 .align_bits 64*16
-font:
-.binfile "data/font.bin"
-
-.align_bits 64*16
 sprite_data:
 .binfile "data/sprites.built.bin"
+
+; Gecko background's data
+.include "data/backgrounds/gecko/background.built.asm"
