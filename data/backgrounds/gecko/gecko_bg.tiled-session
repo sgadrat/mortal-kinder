@@ -3,10 +3,23 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "background.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
+        "background.tmx": {
+            "scale": 2.041015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 236.89186602870814,
+                "y": 126.89760765550241
+            }
+        },
+        "background.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
     },
     "last.imagePath": "/home/sylvain/workspace/vsmile/mortal_kinder/data/backgrounds/gecko",
     "map.height": 32,
@@ -15,9 +28,14 @@
     "map.tileWidth": 8,
     "map.width": 64,
     "openFiles": [
+        "background.tsx",
+        "background.tmx"
     ],
     "project": "gecko_bg.tiled-project",
+    "property.type": "int",
     "recentFiles": [
+        "background.tsx",
+        "background.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

@@ -115,7 +115,7 @@ if out_palette != '':
 		sys.stdout.write(palette_data)
 	else:
 		with open(out_palette, 'wt') as palette_file:
-			palette_filte.write(palette_data)
+			palette_file.write(palette_data)
 
 # Show stats
 if show_stats != 'none':
