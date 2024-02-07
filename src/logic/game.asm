@@ -153,7 +153,7 @@ init_player_a:
 
 game_tick:
 .scope
-	pos_y equ -25
+	pos_y equ -50
 
 	; Apply inputs
 	ld r1, [controller_a_state]
