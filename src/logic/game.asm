@@ -1,20 +1,7 @@
 game_init:
 .scope
-	; clear tilemap
-	ld r2, #' ' ; ASCII space
-	ld r3, #tilemap
-	ld r4, #tilemap_end
-	clear_tilemap_loop:
-		st r2, [r3++]
-		cmp r3, r4
-		jb clear_tilemap_loop
-
-	; set address of bg 1 tilemap
-	ld r2, #tilemap
-	st r2, [PPU_BG1_TILE_ADDR]
-
-	; set color palette
-	;  0 and 1 are used by background ;FIXME should be located with tilemap copy code
+	; set sprites color palette
+	;  0 and 1 are used by background
 	;  16 to 31 are used by player 1 sprites
 	ld r2, #color(31, 31, 31) | color_transparent
 	st r2, [PPU_COLOR(16+0)]
@@ -132,6 +119,10 @@ load_background_gecko:
 	ld r1, #(gecko_background_info & 0xffff) + 3
 	ld r2, D:[r1]
 	st r2, [PPU_BG1_ATTR]
+
+	; Set address of bg 1 tilemap
+	ld r2, #tilemap
+	st r2, [PPU_BG1_TILE_ADDR]
 
 	retf
 .ends
