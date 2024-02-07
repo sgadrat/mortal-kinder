@@ -154,9 +154,14 @@ init_player_a:
 	retf
 
 	anim_info:
+	; Dora
 	.dw 16 ; nb frames skipped between steps
 	.dw 1 ; animation's first tile
 	.dw 2 ; animation's last tile
+	; Ryu
+	;.dw 16 ; nb frames skipped between steps
+	;.dw 3 ; animation's first tile
+	;.dw 7 ; animation's last tile
 .ends
 
 game_tick:
