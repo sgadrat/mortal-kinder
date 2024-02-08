@@ -25,6 +25,8 @@ loop:
 .include "src/logic/controllers.asm"
 .include "src/logic/game.asm"
 
+;TODO check we are not over fff5 already
+
 ; configure interrupt vector
 ; we disabled interrupts, but still need to set the start address
 .org 0xfff5
@@ -47,3 +49,7 @@ sprite_data:
 
 ; Gecko background's data
 .include "data/backgrounds/gecko/background.built.asm"
+
+; Audio data
+;TODO actually separate data from logic
+.include "src/logic/audio.asm"

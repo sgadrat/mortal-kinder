@@ -57,6 +57,10 @@ game_init:
 	; Players
 	call init_player_a
 
+	; Play music
+	call audio_init
+	call play_music
+
 	retf
 .ends
 
