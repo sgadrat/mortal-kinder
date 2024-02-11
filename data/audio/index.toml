@@ -1,0 +1,7 @@
+[[music]]
+name = "main_theme"
+source = "data/audio/main_theme.mp3"
+format = "pcm_16"
+sampling_rate = 44100
+start = 16.000
+duration = 10.000

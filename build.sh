@@ -11,5 +11,8 @@ tools/build_sprites.py data/spritesheets/ryu_hadoken.png >> data/sprites.built.b
 # Build backgrounds
 tools/compile_background.py data/backgrounds/gecko/background.tmx data/backgrounds/gecko/
 
+# Build sounds
+tools/compile_sounds.py data/audio/index.toml data/audio/
+
 # Assemble the game
 "$asm" -l -type bin mortal_kinder.asm -o mortal_kinder.bin

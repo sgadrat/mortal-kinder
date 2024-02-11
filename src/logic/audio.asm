@@ -1,12 +1,3 @@
-;TODO
-; - music in data/audio/ folder should be listed in an index file, referencing source file and desired format
-; - at build time, ffmpeg should be called to convert music to the desired format
-; - asm library should allow to start a music only knowing it's position in the index file
-audio_main_theme:
-.binfile "data/audio/music.built.pcmu16_44100"
-.dw 0xffff ; A byte at "ff" means sample end for the SPU (need a word at "ffff" if pcm16, so a word always works)
-audio_main_theme_end:
-
 audio_init:
 .scope
 	; Configure GPIO (turn on V.Smile audio output)
@@ -49,20 +40,32 @@ audio_init:
 	retf
 .ends
 
-; Phase = Sample rate * (2**19 / 281250)
-sample_rate_to_phase:
-.dw 0x0000, 0x7482 ; 16000 Hz
-.dw 0x0001, 0x4120 ; 44100 Hz
-
+; Play a music on a channel
+;  r1 - music index
+;  r2 - channel index ;TODO (hardcoded to zero for now)
 play_music:
 .scope
 	; Channel specific configuration
 	;{
+		; Get music address in r2,ds
+		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+		or sr, #(audio_musics_lsw >> 6) & 0b111111_0_0_0_0_000000 ;TODO add music index to audio_musics_lsw
+		ld r4, #audio_musics_lsw & 0xffff ;TODO add music index to audio_musics_lsw
+		ld r2, D:[r4]
+
+		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+		or sr, #(audio_musics_msw >> 6) & 0b111111_0_0_0_0_000000 ;TODO add music index to audio_musics_msw
+		ld r3, #audio_musics_msw & 0xffff ;TODO add music index to audio_musics_msw
+		ld r1, D:[r3]
+		ld r3, #1024
+		mul.us r1, r3
+		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+		or sr, r3
+
 		; Set phase of sample
-		;TODO use sample_rate_to_phase table to convert configurable frequence index (in track info) to phase value
-		ld r1, #0x0001
+		ld r1, D:[r2++]
 		st r1, [SPU_CH_PHASE_HI(0)]
-		ld r1, #0x4120
+		ld r1, D:[r2++]
 		st r1, [SPU_CH_PHASE_LO(0)]
 
 		ld r1, #0
@@ -70,10 +73,10 @@ play_music:
 		st r1, [SPU_CH_PHASE_ACCUM_LO(0)]
 
 		; Set address and loop point
-		ld r1, #audio_main_theme & 0xffff
+		ld r1, D:[r2++]
 		st r1, [SPU_CH_WAVE_ADDR(0)]
 
-		ld r1, #audio_main_theme & 0xffff
+		ld r1, D:[r2++]
 		st r1, [SPU_CH_LOOP_ADDR(0)]
 
 		; Channel control
@@ -83,8 +86,13 @@ play_music:
 		;  t: Tone Mode (0=software PCM, 1=one shot PCM, 2=Manual loop PCM, 3=???)
 		;  l: Loop address segment
 		;  s: Sample address segment
-		ld r1, #0b01_10_000000_000000 + (((audio_main_theme & 0x3f_ffff) >> 16) << 6) + (audio_main_theme >> 16)
+		ld r1, D:[r2++]
 		st r1, [SPU_CH_MODE(0)]
+
+		; Reset channel wave data to zero point
+		ld r1, D:[r2]
+		st r1, [SPU_CH_WAVE_DATA_PREV(0)]
+		st r1, [SPU_CH_WAVE_DATA(0)]
 
 		; Volume
 		; uu_ppppppp_vvvvvvv
@@ -107,11 +115,6 @@ play_music:
 		;  a: Envelope address offset
 		ld r1, #0b0000000_000000000
 		st r1, [SPU_CH_ENVELOPE_LOOP_CTRL(0)]
-
-		; Reset channel wave data to zero point
-		ld r1, #0x8000 ;TODO should be 0x0080 for u8 PCM and 0x8000 for u6 PCM
-		st r1, [SPU_CH_WAVE_DATA_PREV(0)]
-		st r1, [SPU_CH_WAVE_DATA(0)]
 	;}
 
 	; Changes in global audio configuration

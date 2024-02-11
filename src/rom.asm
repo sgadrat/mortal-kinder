@@ -51,5 +51,5 @@ sprite_data:
 .include "data/backgrounds/gecko/background.built.asm"
 
 ; Audio data
-;TODO actually separate data from logic
 .include "src/logic/audio.asm"
+.include "data/audio/audio.built.asm"
