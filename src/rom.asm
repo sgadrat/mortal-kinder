@@ -25,10 +25,12 @@ loop:
 .include "src/logic/controllers.asm"
 .include "src/logic/game.asm"
 
-;TODO check we are not over fff5 already
-
 ; configure interrupt vector
 ; we disabled interrupts, but still need to set the start address
+.if $ > 0xfff5
+	.error "too much data in first segment"
+.endif
+
 .org 0xfff5
 .dw 0 ;break
 .dw 0 ;fiq

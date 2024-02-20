@@ -140,6 +140,15 @@ with open(built_asm_filename, 'wt') as asm_file:
 		.dw gecko_background_palette & 0xffff
 		.dw gecko_background_palette_end - gecko_background_palette
 
-		;TODO ensure that all this file is in the same bank
+		; Ensure that all this file is in the same bank
+		; (not sure it is really needed, at least it should not be needed)
+		.scope
+			.set begin_segment = gecko_background_tiles & 0x3f_0000
+			.set end_segment = $ & 0x3f_0000
+			.if begin_segment == end_segment
+			.else
+				.error "Background data between two banks"
+			.endif
+		.ends
 		"""
 	))

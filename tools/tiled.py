@@ -90,23 +90,6 @@ def get_property(tiled_obj, property_name, default=None):
 
 	return default
 
-def get_layer_property(tiled_dict, layer_name, property_name):
-	"""
-	Return a custom property from a layer, or None if not found
-
-	WARNING: contrarily to get_property, this helper return the entire property object, noot just the value
-	TODO: standardise usage
-	"""
-	layer = get_layer(tiled_dict, layer_name)
-	if layer is None:
-		return None
-
-	for prop in layer.get('properties', []):
-		if prop['name'] == property_name:
-			return prop
-
-	return None
-
 def get_class(tiled_obj):
 	"""
 	Return the class of an object (also known as "type" before Tiled 1.9)

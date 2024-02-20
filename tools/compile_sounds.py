@@ -128,9 +128,6 @@ with open(built_audio_table_filename, 'wt') as asm_file:
 		asm_file.write(f'\t.dw {bin(channel_control)} + (((audio_asset_{asset["name"]}+6) >> 16) << 6) + ((audio_asset_{asset["name"]}+6) >> 16) ; Channel control ff_tt_llllll_ssssss\n')
 		asm_file.write(f'\t.dw {hex(zero_point)} ; Wave zero point\n')
 
-		#TODO ensure begining of data is in the same page as begining of the header
-		# (read naken_asm's doc for a way to have coditions/errors on current offset)
-
 		# Asset's data
 		asm_file.write(f'\t.binfile "{relative_assets_filenames[asset["name"]]}"\n')
 		asm_file.write(f'\t.dw 0xffff ; A byte at "ff" means sample end for the SPU (need a word at "ffff" if pcm16, so a word always works)\n')
