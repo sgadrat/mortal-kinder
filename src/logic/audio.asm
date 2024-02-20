@@ -41,12 +41,22 @@ audio_init:
 .ends
 
 ; Play a music on a channel
-;  r1 - music index
-;  r2 - channel index ;TODO (hardcoded to zero for now)
+;  r1 - music index ;TODO (hardcoded to zero for now)
+;  r2 - channel index
 play_music:
 .scope
 	; Channel specific configuration
 	;{
+		; Store channel index
+		channel_index equ tmpfield1
+		channel_register_offset equ tmpfield2
+
+		st r2, [channel_index]
+
+		ld r3, #16
+		mul.us r2, r3
+		st r3, [channel_register_offset]
+
 		; Get music address in r2,ds
 		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
 		or sr, #(audio_musics_lsw >> 6) & 0b111111_0_0_0_0_000000 ;TODO add music index to audio_musics_lsw
@@ -64,20 +74,27 @@ play_music:
 
 		; Set phase of sample
 		ld r1, D:[r2++]
-		st r1, [SPU_CH_PHASE_HI(0)]
+		ld r3, [channel_register_offset]
+		add r4, r3, #SPU_CH_PHASE_HI(0)
+		st r1, [r4]
 		ld r1, D:[r2++]
-		st r1, [SPU_CH_PHASE_LO(0)]
+		add r4, r3, #SPU_CH_PHASE_LO(0)
+		st r1, [r4]
 
 		ld r1, #0
-		st r1, [SPU_CH_PHASE_ACCUM_HI(0)]
-		st r1, [SPU_CH_PHASE_ACCUM_LO(0)]
+		add r4, r3, #SPU_CH_PHASE_ACCUM_HI(0)
+		st r1, [r4]
+		add r4, r3, #SPU_CH_PHASE_ACCUM_LO(0)
+		st r1, [r4]
 
 		; Set address and loop point
 		ld r1, D:[r2++]
-		st r1, [SPU_CH_WAVE_ADDR(0)]
+		add r4, r3, #SPU_CH_WAVE_ADDR(0)
+		st r1, [r4]
 
 		ld r1, D:[r2++]
-		st r1, [SPU_CH_LOOP_ADDR(0)]
+		add r4, r3, #SPU_CH_LOOP_ADDR(0)
+		st r1, [r4]
 
 		; Channel control
 		; ff_tt_llllll_ssssss
@@ -87,12 +104,15 @@ play_music:
 		;  l: Loop address segment
 		;  s: Sample address segment
 		ld r1, D:[r2++]
-		st r1, [SPU_CH_MODE(0)]
+		add r4, r3, #SPU_CH_MODE(0)
+		st r1, [r4]
 
 		; Reset channel wave data to zero point
 		ld r1, D:[r2]
-		st r1, [SPU_CH_WAVE_DATA_PREV(0)]
-		st r1, [SPU_CH_WAVE_DATA(0)]
+		add r4, r3, #SPU_CH_WAVE_DATA_PREV(0)
+		st r1, [r4]
+		add r4, r3, #SPU_CH_WAVE_DATA(0)
+		st r1, [r4]
 
 		; Volume
 		; uu_ppppppp_vvvvvvv
@@ -100,52 +120,67 @@ play_music:
 		;  p: panning (To be determined: is it "0 = full left, 127 = full right"?)
 		;  v: volume
 		ld r1, #0b00_1000000_1111111
-		st r1, [SPU_CH_PAN_VOL(0)]
+		add r4, r3, #SPU_CH_PAN_VOL(0)
+		st r1, [r4]
 
 		; Set envelope volume to full
 		; ccccccccc_ddddddd
 		;  c: Envelope count
 		;  d: Direct data
 		ld r1, #0b000000000_1111111
-		st r1, [SPU_CH_ENVELOPE_DATA(0)]
+		add r4, r3, #SPU_CH_ENVELOPE_DATA(0)
+		st r1, [r4]
 
 		; Set envelope loop (is that value means no loop as we use direct data?)
 		; rrrrrrr_aaaaaaaaa
 		;  r: Rampdown offset
 		;  a: Envelope address offset
 		ld r1, #0b0000000_000000000
-		st r1, [SPU_CH_ENVELOPE_LOOP_CTRL(0)]
+		add r4, r3, #SPU_CH_ENVELOPE_LOOP_CTRL(0)
+		st r1, [r4]
 	;}
 
 	; Changes in global audio configuration
 	;{
+		; Compute channel's masks
+		ld r2, #0b0000_0000_0000_0001
+
+		ld r3, [channel_index]
+		channel_mask_loop:
+			jz end_channel_mask_loop
+
+				ld r4, #0
+				add r4, r2 lsl 1
+				ld r2, r4
+
+				sub r3, #1
+				jmp channel_mask_loop
+		end_channel_mask_loop:
+
+		xor r3, r2, #0b1111_1111_1111_1111
+
 		; Disable rampdown, 1 bit per channel
-		ld r2, #0b1111_1111_1111_1110
 		ld r1, [SPU_ENV_RAMP_DOWN]
-		and r1, r2
+		and r1, r3
 		st r1, [SPU_ENV_RAMP_DOWN]
 
 		; Channel envelope repeat, 1 bit per channel
 		; Actually we never use enveloppe repeat, so there is no real need to reset that bit (it will never be 1)
-		;ld r2, #0b1111_1111_1111_1110
 		;ld r1, [SPU_CHANNEL_REPEAT]
-		;and r1, r2
+		;and r1, r3
 		;st r1, [SPU_CHANNEL_REPEAT]
 
 		; Channel envelope mode, 1 bit per channel
-		ld r2, #0b0000_0000_0000_0001
 		ld r1, [SPU_CHANNEL_ENV_MODE]
 		or r1, r2
 		st r1, [SPU_CHANNEL_ENV_MODE]
 
 		; Channel stop, 1 bit per channel
-		ld r2, #0b0000_0000_0000_0001
 		ld r1, [SPU_CHANNEL_STOP]
 		or r1, r2
 		st r1, [SPU_CHANNEL_STOP]
 
 		; Channel enable, 1 bit per channel
-		ld r2, #0b0000_0000_0000_0001
 		ld r1, [SPU_CHANNEL_ENABLE]
 		or r1, r2
 		st r1, [SPU_CHANNEL_ENABLE]

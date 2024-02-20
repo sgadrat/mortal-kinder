@@ -59,6 +59,9 @@ game_init:
 
 	; Play music
 	call audio_init
+
+	ld r1, #0
+	ld r2, #0
 	call play_music
 
 	retf
@@ -175,6 +178,14 @@ game_tick:
 		sub r2, #1
 		st r2, [player_a_pos_x]
 	ok_left:
+
+	ld r1, [controller_a_state]
+	and r1, #INPUT_BUTTON
+	jz ok_button
+		ld r1, #0
+		ld r2, #1
+		call play_music
+	ok_button:
 
 	; Tick animation
 	ld bp, #player_a_anim
