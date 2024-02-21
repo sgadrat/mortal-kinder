@@ -134,19 +134,13 @@ with open(built_audio_table_filename, 'wt') as asm_file:
 		asm_file.write('\n')
 
 	# Musics index table
-	asm_file.write('audio_musics_msw:\n')
+	asm_file.write('audio_musics:\n')
 	for asset in musics:
-		asm_file.write(f'.dw audio_asset_{asset["name"]} >> 16\n')
-	asm_file.write('audio_musics_lsw:\n')
-	for asset in musics:
-		asm_file.write(f'.dw audio_asset_{asset["name"]} & 0xffff\n')
+		asm_file.write(f'.dw audio_asset_{asset["name"]} & 0xffff, audio_asset_{asset["name"]} >> 16\n')
 	asm_file.write('\n')
 
 	# Sounds index table
-	asm_file.write('audio_sounds_msw:\n')
+	asm_file.write('audio_sounds:\n')
 	for asset in sounds:
-		asm_file.write(f'.dw audio_asset_{asset["name"]} >> 16\n')
-	asm_file.write('audio_sounds_lsw:\n')
-	for asset in sounds:
-		asm_file.write(f'.dw audio_asset_{asset["name"]} & 0xffff\n')
+		asm_file.write(f'.dw audio_asset_{asset["name"]} & 0xffff, audio_asset_{asset["name"]} >> 16\n')
 	asm_file.write('\n')

@@ -62,22 +62,22 @@ play_music:
 			; r2,r3 = (audio_musics + 2*music_index)
 			add r1, r1
 
-			ld r2, #audio_musics_lsw
+			ld r2, #audio_musics & 0xffff
 			add r2, r1
 			ld r3, #0
-			adc r3, #audio_musics_lsw >> 16
+			adc r3, #audio_musics >> 16
 
-			; r4 = (audio_musics_lsw + 2*music_index) high bits (in r4's high bits)
-			ld r4, r3 lsr 4
-			ld r4, r4 lsr 4
-			ld r4, r4 lsr 2
+			; r3 = (audio_musics + 2*music_index) high bits (in r3's high bits)
+			ld r4, #1024
+			mul.us r3, r4
 
-			; ds = (audio_musics_lsw + 2*music_index) high bits
+			; ds = (audio_musics + 2*music_index) high bits
 			and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
-			or sr, r4
+			or sr, r3
 
-			; r2 = music address lsw
-			ld r2, D:[r2++]
+			; push music address lsw
+			ld r3, D:[r2++]
+			push r3, [sp]
 
 			; ds = music address msw
 			ld r1, D:[r2]
@@ -85,6 +85,9 @@ play_music:
 			mul.us r1, r3
 			and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
 			or sr, r3
+
+			; r2 = music address lsw
+			pop r2, [sp]
 		;}
 
 		; Set phase of sample
