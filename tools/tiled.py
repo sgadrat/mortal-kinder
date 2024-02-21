@@ -38,7 +38,7 @@ def load(input_filename):
 			tileset = tiled_dict['tilesets'][tileset_idx]
 			if 'source' in tileset:
 				# Resolve source's absolute path
-				source_filename = os.path.dirname(map_filename) + '/' + tileset['source']
+				source_filename = os.path.normpath(os.path.dirname(map_filename) + '/' + tileset['source'])
 				tileset['source'] = source_filename
 
 				# Export sourced file to JSON format to read it
@@ -50,7 +50,7 @@ def load(input_filename):
 
 				# Resolve image's absolute path
 				if 'image' in sourced_tileset:
-					sourced_tileset['image'] = os.path.dirname(tileset_filename) + '/' + sourced_tileset['image']
+					sourced_tileset['image'] = os.path.normpath(os.path.dirname(tileset_filename) + '/' + sourced_tileset['image'])
 
 				# Integrate sourced tileset to the object in our representation
 				tileset.update(sourced_tileset)
