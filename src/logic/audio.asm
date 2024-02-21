@@ -41,7 +41,7 @@ audio_init:
 .ends
 
 ; Play a music on a channel
-;  r1 - music index ;TODO (hardcoded to zero for now)
+;  r1 - music index
 ;  r2 - channel index
 play_music:
 .scope
@@ -58,19 +58,34 @@ play_music:
 		st r3, [channel_register_offset]
 
 		; Get music address in r2,ds
-		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
-		or sr, #(audio_musics_lsw >> 6) & 0b111111_0_0_0_0_000000 ;TODO add music index to audio_musics_lsw
-		ld r4, #audio_musics_lsw & 0xffff ;TODO add music index to audio_musics_lsw
-		ld r2, D:[r4]
+		;{
+			; r2,r3 = (audio_musics + 2*music_index)
+			add r1, r1
 
-		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
-		or sr, #(audio_musics_msw >> 6) & 0b111111_0_0_0_0_000000 ;TODO add music index to audio_musics_msw
-		ld r3, #audio_musics_msw & 0xffff ;TODO add music index to audio_musics_msw
-		ld r1, D:[r3]
-		ld r3, #1024
-		mul.us r1, r3
-		and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
-		or sr, r3
+			ld r2, #audio_musics_lsw
+			add r2, r1
+			ld r3, #0
+			adc r3, #audio_musics_lsw >> 16
+
+			; r4 = (audio_musics_lsw + 2*music_index) high bits (in r4's high bits)
+			ld r4, r3 lsr 4
+			ld r4, r4 lsr 4
+			ld r4, r4 lsr 2
+
+			; ds = (audio_musics_lsw + 2*music_index) high bits
+			and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+			or sr, r4
+
+			; r2 = music address lsw
+			ld r2, D:[r2++]
+
+			; ds = music address msw
+			ld r1, D:[r2]
+			ld r3, #1024
+			mul.us r1, r3
+			and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
+			or sr, r3
+		;}
 
 		; Set phase of sample
 		ld r1, D:[r2++]
