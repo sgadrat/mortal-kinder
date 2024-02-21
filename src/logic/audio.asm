@@ -45,8 +45,34 @@ audio_init:
 ;  r2 - channel index
 play_music:
 .scope
+	ld r3, #audio_musics & 0xffff
+	ld r4, #audio_musics >> 16
+	jmp play_asset
+	;retf ; useless, jump to subroutine
+.ends
+
+; Play an sfx on a channel
+;  r1 - music index
+;  r2 - channel index
+play_sound:
+.scope
+	ld r3, #audio_sounds & 0xffff
+	ld r4, #audio_sounds >> 16
+	; retf ; Fallthrough to play_asset
+.ends
+
+; Play a music on a channel
+;  r1 - music index
+;  r2 - channel index
+;  r3,r4 - assets table
+play_asset:
+.scope
 	; Channel specific configuration
 	;{
+		; Push assets table address
+		push r4, [sp]
+		push r3, [sp]
+
 		; Store channel index
 		channel_index equ tmpfield1
 		channel_register_offset equ tmpfield2
@@ -59,19 +85,21 @@ play_music:
 
 		; Get music address in r2,ds
 		;{
-			; r2,r3 = (audio_musics + 2*music_index)
+			; r2,r3 = (asset_table + 2*music_index)
 			add r1, r1
 
-			ld r2, #audio_musics & 0xffff
+			pop r2, [sp]
+			pop r4, [sp]
+
 			add r2, r1
 			ld r3, #0
-			adc r3, #audio_musics >> 16
+			adc r3, r4
 
-			; r3 = (audio_musics + 2*music_index) high bits (in r3's high bits)
+			; r3 = (asset_table + 2*music_index) high bits (in r3's high bits)
 			ld r4, #1024
 			mul.us r3, r4
 
-			; ds = (audio_musics + 2*music_index) high bits
+			; ds = (asset_table + 2*music_index) high bits
 			and sr, #0b000000_1_1_1_1_111111 ; DS N Z S C CS
 			or sr, r3
 

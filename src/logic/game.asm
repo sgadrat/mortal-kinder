@@ -184,7 +184,7 @@ game_tick:
 	jz ok_button
 		ld r1, #0
 		ld r2, #1
-		call play_music
+		call play_sound
 	ok_button:
 
 	; Tick animation
