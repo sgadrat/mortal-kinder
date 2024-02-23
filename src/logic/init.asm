@@ -49,3 +49,7 @@ st r2, [PPU_SPRITE_CTRL] ; enable sprites
 
 ld r2, #(sprite_data-(64*64/4))/64 ; "sprite_data - one sprite" because sprite 0 is unusable, "/64" forced alignment, "/4" four pixels per word
 st r2, [PPU_SPRITE_SEGMENT_ADDR]
+
+; Enable PPU IRQ on vblank (even if we don't handle IRQs, it updates PPU_IRQ_STATUS
+ld r1, #0b0000_0000_0000_0001
+st r1, [PPU_IRQ_ENABLE]
