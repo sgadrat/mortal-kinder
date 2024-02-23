@@ -45,12 +45,13 @@ animation_tick:
 		add r1, #1
 		st r1, [bp + ANIMATION_STATE_CURRENT_TILE]
 		cmp r1, [bp + ANIMATION_STATE_LAST_TILE]
-		jbe last_tile_set
+		jz last_tile_set
 			; We gone past the end, loop
 			ld r1, [bp + ANIMATION_STATE_FIRST_TILE]
 			st r1, [bp + ANIMATION_STATE_CURRENT_TILE]
 		last_tile_set:
 	ok:
+	retf
 .ends
 
 ; Show animation on screen
