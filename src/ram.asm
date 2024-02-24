@@ -1,6 +1,5 @@
-; allocate space for the tilemap, which is stored in standard RAM
-; put the tilemap somewhere other than 0 (unununium crashes with tilemap at 0)
-.org 0x0001
+; Allocate space for the tilemap, which is stored in standard RAM
+.org 0x0000
 tilemap:
 ; Memory usage of the tilemap: one word per tile
 ;  512x256 pixels: can't be changed

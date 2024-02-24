@@ -131,6 +131,19 @@ load_background_gecko:
 	ld r2, #tilemap
 	st r2, [PPU_BG1_TILE_ADDR]
 
+	; Set control config for bg 1
+	;   bit 0: bitmap mode (0 = disable)
+	;   bit 1: attribute map mode or register mode (1 = register mode)
+	;   bit 2: wallpaper mode (0 = disable)
+	;   bit 3: enable bg (1 = enable)
+	;   bit 4: horizontal line-specific movement (0 = disable)
+	;   bit 5: horizontal compression (0 = disable)
+	;   bit 6: vertical compression (0 = disable)
+	;   bit 7: 16-bit color mode (0 = disable)
+	;   bit 8: blend (0 = disable)
+	ld r2, #000001010b
+	st r2, [PPU_BG1_CTRL]
+
 	retf
 .ends
 
