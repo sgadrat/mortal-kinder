@@ -20,8 +20,10 @@ controller_b_state: .resw 1
 ;
 
 player_a_anim: .resw 5 ;ANIMATION_STATE_SIZE
-
 player_a_pos_x: .resw 1
+
+player_b_anim: .resw 5 ;ANIMATION_STATE_SIZE
+player_b_pos_x: .resw 1
 
 ;
 ; Generic use globals

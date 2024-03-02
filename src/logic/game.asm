@@ -51,11 +51,32 @@ game_init:
 	ld r2, #color(0x1e, 0x1f, 0x1f)
 	st r2, [PPU_COLOR(16+15)]
 
+	; p2 palette
+	ld r2, #color(31, 31, 31) | color_transparent
+	st r2, [PPU_COLOR(32+0)]
+	ld r2, #color(0, 0, 0)
+	st r2, [PPU_COLOR(32+1)]
+	ld r2, #color(9, 0, 11)
+	st r2, [PPU_COLOR(32+2)]
+	ld r2, #color(17, 0, 17)
+	st r2, [PPU_COLOR(32+3)]
+	ld r2, #color(24, 0, 0)
+	st r2, [PPU_COLOR(32+4)]
+	ld r2, #color(24, 0, 31)
+	st r2, [PPU_COLOR(32+5)]
+	ld r2, #color(18, 12, 9)
+	st r2, [PPU_COLOR(32+6)]
+	ld r2, #color(31, 22, 18)
+	st r2, [PPU_COLOR(32+7)]
+	ld r2, #color(29, 27, 26)
+	st r2, [PPU_COLOR(32+8)]
+
 	; Load background
 	call load_background_gecko
 
 	; Players
 	call init_player_a
+	call init_player_b
 
 	; Play music
 	call audio_init
@@ -171,6 +192,30 @@ init_player_a:
 	;.dw 7 ; animation's last tile
 .ends
 
+init_player_b:
+.scope
+	; Animation
+	ld bp, #player_b_anim
+	ld r1, #anim_info
+	call animation_init
+
+	; State
+	ld r1, #40
+	st r1, [player_b_pos_x]
+
+	retf
+
+	anim_info:
+	; Dora
+	.dw 16 ; nb frames skipped between steps
+	.dw 8 ; animation's first tile
+	.dw 9 ; animation's last tile
+	; Ryu
+	;.dw 16 ; nb frames skipped between steps
+	;.dw 3 ; animation's first tile
+	;.dw 7 ; animation's last tile
+.ends
+
 game_tick:
 .scope
 	pos_y equ -50
@@ -209,6 +254,16 @@ game_tick:
 	ld r1, [player_a_pos_x]
 	ld r2, #pos_y
 	call animation_display
+
+	; Tick animation
+	ld bp, #player_b_anim
+	call animation_tick
+
+	; Place sprite
+	ld bp, #player_b_anim
+	ld r1, [player_b_pos_x]
+	ld r2, #pos_y
+	call animation_display2
 
 	retf
 .ends

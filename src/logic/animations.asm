@@ -74,3 +74,20 @@ animation_display:
 
 	retf
 .ends
+
+animation_display2:
+.scope
+	pos_z2 equ 1
+	sprites_palette2 equ 2
+
+	ld r3, [bp + ANIMATION_STATE_CURRENT_TILE]
+	st r3, [PPU_SPRITE_TILE(1)]
+
+	st r1, [PPU_SPRITE_X(1)]
+	st r2, [PPU_SPRITE_Y(1)]
+
+	ld r1, #(pos_z2 << 12) | (sprites_palette2 << 8) | (SPRITE_SIZE_64 << 6) | (SPRITE_SIZE_64 << 4) | SPRITE_COLOR_DEPTH_4
+	st r1, [PPU_SPRITE_ATTR(1)]
+
+	retf
+.ends
